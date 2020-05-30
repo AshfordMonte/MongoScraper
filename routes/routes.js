@@ -8,6 +8,15 @@ const cheerio = require("cheerio");
 const db = require("../models");
 
 router.get("/", function(req, res) {
+  db.Article.find({})
+    .then(function(dbArticle) {
+      res.render("index", {
+        Article: dbArticle
+      });
+    })
+});
+
+router.get("/scrape", function(req, res) {
   axios.get("https://www.pcgamer.com/news/").then(function(response) {
     var $ = cheerio.load(response.data);
 
@@ -31,8 +40,8 @@ router.get("/", function(req, res) {
           console.log(err);
         });
     });
-    res.render("index");
+    res.send("Scrape Complete");
   });
-});
+})
 
 module.exports = router;
