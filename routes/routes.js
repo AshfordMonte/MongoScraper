@@ -8,8 +8,9 @@ const cheerio = require("cheerio");
 const db = require("../models");
 
 router.get("/", function(req, res) {
-  db.Article.find({})
+  db.Article.find({}).lean()
     .then(function(dbArticle) {
+      // console.log(dbArticle);
       res.render("index", {
         Article: dbArticle
       });
@@ -39,9 +40,23 @@ router.get("/scrape", function(req, res) {
         .catch(function(err) {
           console.log(err);
         });
+    })
+    .then(() => {
+      console.log("Setting status");
+      res.status(200);
     });
-    res.send("Scrape Complete");
+    
   });
+})
+
+router.get("/clear", function(req, res) {
+  console.log("Clear called");
+  db.Article.remove({})
+    .then(function(results) {
+      // console.log(results);
+      console.log("Cleared");
+      res.status(200);
+    });
 })
 
 module.exports = router;
