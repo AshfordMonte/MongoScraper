@@ -7,9 +7,9 @@ const cheerio = require("cheerio");
 
 const db = require("../models");
 
-router.get("/", function(req, res) {
+router.get("/", function (req, res) {
   db.Article.find({}).lean()
-    .then(function(dbArticle) {
+    .then(function (dbArticle) {
       // console.log(dbArticle);
       res.render("index", {
         Article: dbArticle
@@ -17,16 +17,16 @@ router.get("/", function(req, res) {
     })
 });
 
-router.get("/scrape", function(req, res) {
-  axios.get("https://www.pcgamer.com/news/").then(function(response) {
+router.get("/scrape", function (req, res) {
+  axios.get("https://www.pcgamer.com/news/").then(function (response) {
     var $ = cheerio.load(response.data);
 
-    $("h3.article-name").each(function(i, element) {
+    $("h3.article-name").each(function (i, element) {
 
       var title = $(element).text();
       var link = $(element).parent().parent().parent().parent().attr("href");
-      var synopsis = $(element).parent().parent().children("p").text().slice(5,-1);
-  
+      var synopsis = $(element).parent().parent().children("p").text().slice(5, -1);
+
       var result = {};
 
       result.title = title;
@@ -34,28 +34,24 @@ router.get("/scrape", function(req, res) {
       result.synopsis = synopsis;
 
       db.Article.create(result)
-        .then(function(dbArticle) {
+        .then(function (dbArticle) {
           console.log(dbArticle);
         })
-        .catch(function(err) {
+        .catch(function (err) {
           console.log(err);
         });
-    })
-    .then(() => {
-      console.log("Setting status");
-      res.status(200);
     });
-    
+    res.send("Scrape Complete");
   });
 })
 
-router.get("/clear", function(req, res) {
+router.get("/clear", function (req, res) {
   console.log("Clear called");
   db.Article.remove({})
-    .then(function(results) {
+    .then(function (results) {
       // console.log(results);
       console.log("Cleared");
-      res.status(200);
+      res.send("Clear Complete");
     });
 })
 
